@@ -41,8 +41,9 @@ namespace NuKeeper.Update.Process
             var sourceUrl = UriEscapedForArgument(packageSource.SourceUri);
             var sources = allSources.CommandLine("-s");
 
-            var restoreCommand = $"restore {projectFileNameCommandLine} {sources}";
-            await _externalProcess.Run(projectPath, "dotnet", restoreCommand, true);
+            // why??
+            //var restoreCommand = $"restore {projectFileNameCommandLine} {sources}";
+            //await _externalProcess.Run(projectPath, "dotnet", restoreCommand, true);
 
             if (currentPackage.Path.PackageReferenceType == PackageReferenceType.ProjectFileOldStyle)
             {
@@ -50,7 +51,9 @@ namespace NuKeeper.Update.Process
                 await _externalProcess.Run(projectPath, "dotnet", removeCommand, true);
             }
 
-            var addCommand = $"add {projectFileNameCommandLine} package {currentPackage.Id} -v {newVersion} -s {sourceUrl}";
+            //var addCommand = $"add {projectFileNameCommandLine} package {currentPackage.Id} -v {newVersion} -s {sourceUrl}";
+            var addCommand = $"add {projectFileNameCommandLine} package {currentPackage.Id} -v {newVersion}";
+
             await _externalProcess.Run(projectPath, "dotnet", addCommand, true);
         }
 

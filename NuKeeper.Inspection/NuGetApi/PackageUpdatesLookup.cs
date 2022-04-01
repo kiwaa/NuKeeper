@@ -38,7 +38,7 @@ namespace NuKeeper.Inspection.NuGetApi
                 var matchVersion = latestPackage.Selected().Identity.Version;
 
                 var updatesForThisPackage = packages
-                    .Where(p => p.Identity.Equals(packageId) && p.Version < matchVersion)
+                    .Where(p => p.Id.Equals(packageId.Id) && p.Version < matchVersion)
                     .ToList();
 
                 if (updatesForThisPackage.Count > 0)
