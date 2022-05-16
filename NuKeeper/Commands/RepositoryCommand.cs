@@ -20,6 +20,14 @@ namespace NuKeeper.Commands
             Description = "Set automatically auto merge for created pull request. Works only for Azure Devops. Defaults to false.")]
         public bool? SetAutoMerge { get; set; }
 
+        [Option(CommandOptionType.NoValue, ShortName = "", LongName = "selfapprove",
+            Description = "Automatiically approve for created pull request. Works only for Azure Devops. Defaults to false.")]
+        public bool? SelfApprove { get; set; }
+
+        [Option(CommandOptionType.SingleOrNoValue, ShortName = "", LongName = "workitem",
+            Description = "Set specified work item for created pull request. Works only for Azure Devops. Defaults to null.")]
+        public int? SetWorkItem { get; set; }
+
         private readonly IEnumerable<ISettingsReader> _settingsReaders;
 
         public RepositoryCommand(ICollaborationEngine engine, IConfigureLogger logger, IFileSettingsCache fileSettingsCache, ICollaborationFactory collaborationFactory, IEnumerable<ISettingsReader> settingsReaders)
@@ -63,7 +71,7 @@ namespace NuKeeper.Commands
                 return ValidationResult.Failure($"Unable to work out which platform to use {RepositoryUri} could not be matched");
             }
 
-            settings.SourceControlServerSettings.Repository = await reader.RepositorySettings(repoUri, SetAutoMerge ?? false, TargetBranch);
+            settings.SourceControlServerSettings.Repository = await reader.RepositorySettings(repoUri, SetAutoMerge ?? false, TargetBranch, SelfApprove ?? false, SetWorkItem);
 
             var baseResult = await base.PopulateSettings(settings);
             if (!baseResult.IsSuccess)

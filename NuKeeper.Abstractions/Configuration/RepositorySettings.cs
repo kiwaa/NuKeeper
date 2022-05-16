@@ -34,5 +34,7 @@ namespace NuKeeper.Abstractions.Configuration
         public RemoteInfo RemoteInfo { get; set; }
 
         public bool SetAutoMerge { get; set; }
+        public bool SelfApprove { get; set; }
+        public int? SetWorkItem { get; set; }
     }
 }

@@ -65,6 +65,15 @@ namespace NuKeeper.AzureDevOps
         public string descriptor { get; set; }
     }
 
+    public class Reviewer : Creator
+    {
+        public string reviewerUrl { get; set; }
+        public bool hasDeclined { get; set; }
+        public bool isFlagged { get; set; }
+        public int vote { get; set; }
+    }
+
+
     public class GitRefs
     {
         public string name { get; set; }
@@ -110,6 +119,7 @@ namespace NuKeeper.AzureDevOps
         public string MergeStatus { get; set; }
         public string MergeId { get; set; }
         public string Url { get; set; }
+        public string ArtifactId { get; set; }
         public bool SupportsIterations { get; set; }
         public Creator CreatedBy { get; set; }
         public IEnumerable<WebApiTagDefinition> labels { get; set; }
@@ -204,5 +214,11 @@ namespace NuKeeper.AzureDevOps
     public class GitItem
     {
         public string path { get; set; }
+    }
+
+    public class ResourceRef
+    {
+        public string id { get; set; }
+        public string url { get; set; }
     }
 }

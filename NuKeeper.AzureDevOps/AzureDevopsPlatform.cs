@@ -127,14 +127,35 @@ namespace NuKeeper.AzureDevOps
             if (request.SetAutoMerge)
             {
                 await _client.SetAutoComplete(new PRRequest()
+                {
+                    autoCompleteSetBy = new Creator()
                     {
-                        autoCompleteSetBy = new Creator()
-                        {
-                            id = pullRequest.CreatedBy.id
-                        }
-                    }, target.Owner,
+                        id = pullRequest.CreatedBy.id
+                    }
+                }, target.Owner,
                     repo.id,
                     pullRequest.PullRequestId);
+            }
+
+            if (request.SelfApprove)
+            {
+                var tmp1 = await _client.SetReviewer(new Reviewer()
+                {
+                    hasDeclined = false,
+                    id = pullRequest.CreatedBy.id,
+                    vote = 10 // approve
+                }, target.Owner,
+                    repo.id,
+                    pullRequest.PullRequestId);
+            }
+
+            if (request.SetWorkItem.HasValue)
+            {
+                var tmp2 = await _client.SetWorkItem(new ResourceRef {
+                    id = request.SetWorkItem.ToString()
+                }, target.Owner,
+                    pullRequest.ArtifactId);
+
             }
 
             foreach (var label in labels)

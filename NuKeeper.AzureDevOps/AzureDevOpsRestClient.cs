@@ -51,6 +51,17 @@ namespace NuKeeper.AzureDevOps
             });
             return await HandleResponse<T>(response, caller);
         }
+        private async Task<T> PutResource<T>(string url, HttpContent content, bool previewApi = false, [CallerMemberName] string caller = null)
+        {
+            var fullUrl = BuildAzureDevOpsUri(url, previewApi);
+            _logger.Detailed($"{caller}: Requesting {fullUrl}");
+
+            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("PUT"), fullUrl)
+            {
+                Content = content
+            });
+            return await HandleResponse<T>(response, caller);
+        }
 
         private async Task<T> GetResource<T>(string url, bool previewApi = false, [CallerMemberName] string caller = null)
         {
@@ -111,8 +122,8 @@ namespace NuKeeper.AzureDevOps
 
             var separator = relativePath.Contains("?") ? "&" : "?";
             return previewApi
-                ? new Uri($"{relativePath}{separator}api-version=4.1-preview.1", UriKind.Relative)
-                : new Uri($"{relativePath}{separator}api-version=4.1", UriKind.Relative);
+                ? new Uri($"{relativePath}{separator}api-version=6.0-preview.1", UriKind.Relative)
+                : new Uri($"{relativePath}{separator}api-version=6.0", UriKind.Relative);
         }
 
         // documentation is confusing, I think this won't work without memberId or ownerId
@@ -187,7 +198,40 @@ namespace NuKeeper.AzureDevOps
             var autoCompleteContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
             return await PatchResource<PullRequest>($"{projectName}/_apis/git/repositories/{azureRepositoryId}/pullRequests/{pullRequestId}", autoCompleteContent);
         }
-        
+        public async Task<Reviewer> SetReviewer(Reviewer request, string projectName, string azureRepositoryId, int pullRequestId)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+            var approvedContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+            var reviewerId = request.id;
+            return await PutResource<Reviewer>($"{projectName}/_apis/git/repositories/{azureRepositoryId}/pullRequests/{pullRequestId}/reviewers/{reviewerId}", approvedContent);
+        }
+        public async Task<PullRequest> SetWorkItem(ResourceRef workItem, string projectName, string pullRequestArtifactId)
+        {
+            if (workItem == null)
+                throw new ArgumentNullException(nameof(workItem));
+            var workitemId = workItem.id;
+            var request = new []
+            {
+                new
+                {
+                    op = "add",
+                    path = "/relations/-",
+                    value = new {
+                        rel = "ArtifactLink",
+                        url = pullRequestArtifactId,
+                        attributes = new Dictionary<string, string>()
+                        {
+                            ["name"] = "Pull Request"
+                        }
+                    }
+                }
+            };
+
+            var workItemContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json-patch+json");
+            return await PatchResource<PullRequest>($"{projectName}/_apis/wit/workitems/{workitemId}", workItemContent);
+        }
+
         public async Task<IEnumerable<string>> GetGitRepositoryFileNames(string projectName, string azureRepositoryId)
         {
             var response = await GetResource<GitItemResource>($"{projectName}/_apis/git/repositories/{azureRepositoryId}/items?recursionLevel=Full");

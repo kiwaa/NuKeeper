@@ -68,7 +68,7 @@ namespace NuKeeper.Gitea
             settings.Token = Concat.FirstValue(envToken, settings.Token);
         }
 
-        public async Task<RepositorySettings> RepositorySettings(Uri repositoryUri, bool setAutoMerge, string targetBranch = null)
+        public async Task<RepositorySettings> RepositorySettings(Uri repositoryUri, bool setAutoMerge, string targetBranch = null, bool selfApprove = false, int? setWorkItem = null)
         {
             if (repositoryUri == null)
             {

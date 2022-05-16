@@ -10,7 +10,7 @@ namespace NuKeeper.Abstractions.CollaborationPlatform
 
         Task<bool> CanRead(Uri repositoryUri);
 
-        Task<RepositorySettings> RepositorySettings(Uri repositoryUri, bool setAutoMerge, string targetBranch = null);
+        Task<RepositorySettings> RepositorySettings(Uri repositoryUri, bool setAutoMerge, string targetBranch = null, bool selfApprove = false, int? setWorkItem = null);
 
         void UpdateCollaborationPlatformSettings(CollaborationPlatformSettings settings);
     }
